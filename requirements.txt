@@ -1,0 +1,40 @@
+# JIM's - Gerenciador de gastos
+# Dependências do projeto (Expo + React Native + TypeScript)
+#
+# ATENÇÃO: projetos Expo não usam requirements.txt de verdade (isso é do Python).
+# O arquivo oficial de dependências é o package.json, que o Expo gera sozinho.
+# Este arquivo serve como lista de consulta para a equipe.
+#
+# Pré-requisitos:
+#   - Node.js (versão LTS) e npm
+#   - App Expo Go instalado no celular
+#
+# 1) Criar o projeto base:
+#      npx create-expo-app@latest jims --template blank-typescript
+#
+# 2) Instalar as bibliotecas abaixo (use "expo install", não "npm install",
+#    para pegar as versões compatíveis com o Expo Go):
+#      npx expo install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs react-native-screens react-native-safe-area-context @react-native-async-storage/async-storage react-native-svg expo-status-bar @expo/vector-icons
+#
+# 3) Se aparecer erro de versão:
+#      npx expo install --fix
+#
+# 4) Rodar:
+#      npx expo start
+
+# Navegação
+@react-navigation/native
+@react-navigation/native-stack
+@react-navigation/bottom-tabs
+react-native-screens
+react-native-safe-area-context
+
+# Armazenamento local
+@react-native-async-storage/async-storage
+
+# Gráfico de pizza
+react-native-svg
+
+# Interface
+expo-status-bar
+@expo/vector-icons
