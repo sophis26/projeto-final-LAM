@@ -82,6 +82,7 @@ export default function Navigation() {
             <Stack.Screen
               name="AddExpense"
               component={AddExpenseScreen}
+              initialParams={{ date: undefined, categoryId: undefined }}
               options={{
                 presentation: 'modal',
                 headerShown: true,

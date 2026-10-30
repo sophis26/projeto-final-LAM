@@ -76,7 +76,7 @@ export default function CalendarScreen({ navigation }: any) {
                     borderWidth: isSel ? 3 : 0, borderColor: palette.text,
                   }}
                 >
-                  <Text style={{ fontWeight: '700', color: coloured && perDay[iso] > dailyLimit ? '#FFFFFF' : palette.isDark && !coloured ? palette.text : '#1E2F46' }}>{day}</Text>
+                  <Text style={{ fontWeight: '700', color: coloured && perDay[iso] > dailyLimit ? palette.chartStroke : palette.text }}>{day}</Text>
                 </Pressable>
               </View>
             );

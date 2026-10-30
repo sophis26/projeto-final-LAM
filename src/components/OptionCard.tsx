@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { spacing } from '../theme/colors';
 
 interface Props {
   icon: keyof typeof Ionicons.glyphMap;
@@ -17,13 +18,13 @@ export function OptionCard({ icon, label, selected = false, onPress, width = '48
     <Pressable
       onPress={onPress}
       style={({ pressed }) => ({
-        width, minHeight: 104, borderRadius: 16, padding: 12, marginBottom: 12, alignItems: 'center', justifyContent: 'center', gap: 8,
+        width, minHeight: 104, borderRadius: spacing.cardRadius, padding: spacing.sm, marginBottom: spacing.sm, alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
         backgroundColor: selected ? palette.soft : palette.card,
         borderWidth: 2.5, borderColor: selected ? palette.lime : 'transparent',
         opacity: pressed ? 0.85 : 1,
       })}
     >
-      <Ionicons name={icon} size={30} color={selected ? palette.text : palette.isDark ? palette.primary : '#2F5E96'} />
+      <Ionicons name={icon} size={30} color={selected ? palette.text : palette.primary} />
       <Text style={{ color: palette.text, fontWeight: '700', textAlign: 'center' }}>{label}</Text>
     </Pressable>
   );

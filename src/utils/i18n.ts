@@ -2,9 +2,9 @@ import { Language } from '../types';
 
 const pt: Record<string, string> = {
   login: 'Login', register: 'Cadastro', email: 'E-mail', password: 'Senha', name: 'Nome',
-  noAccount: 'Não tem conta? Cadastre-se', hasAccount: 'Já tem conta? Entre',
-  errFill: 'Preencha todos os campos.', errEmailExists: 'Este e-mail já está cadastrado.',
-  errCredentials: 'E-mail ou senha incorretos.', errPasswordShort: 'A senha precisa ter ao menos 4 caracteres.',
+  noAccount: 'Não tem conta? Cadastre-se', hasAccount: 'Já tem conta? Entre', confirmPassword: 'Confirmar senha',
+  errFill: 'Preencha todos os campos.', errEmailExists: 'Este e-mail já está cadastrado.', errEmailInvalid: 'Informe um e-mail válido.',
+  errCredentials: 'E-mail ou senha incorretos.', errPasswordShort: 'A senha precisa ter ao menos 6 caracteres.', errPasswordMismatch: 'As senhas não conferem.',
   whyTitle: "Por que você quer usar o JIM's?", whyHint: 'Escolha quantas quiser.',
   m_control: 'Controlar meus gastos', m_save: 'Economizar dinheiro', m_debts: 'Sair das dívidas',
   m_fixed: 'Organizar contas fixas', m_plan: 'Planejar compras', m_learn: 'Aprender sobre finanças',
@@ -25,14 +25,14 @@ const pt: Record<string, string> = {
   cat_market: 'Mercado', cat_iptu: 'IPTU', cat_ipva: 'IPVA', cat_bills: 'Contas', cat_transport: 'Transporte', cat_leisure: 'Lazer',
   settingsTitle: 'Configurações', sTheme: 'Cor / Tema', sLanguage: 'Idioma', sUser: 'Usuário', sBudget: 'Orçamento', sHelp: 'Ajuda',
   light: 'Claro', dark: 'Escuro', monthlyBudget: 'Orçamento mensal (R$)', saveBudget: 'Salvar orçamento', saved: 'Salvo!',
-  logout: 'Sair da conta', logged: 'Conectado como',
+  logout: 'Sair da conta', logged: 'Conectado como', selectSource: 'Selecione uma opção para continuar.',
 };
 
 const en: Record<string, string> = {
   login: 'Log in', register: 'Sign up', email: 'E-mail', password: 'Password', name: 'Name',
-  noAccount: "Don't have an account? Sign up", hasAccount: 'Already have an account? Log in',
-  errFill: 'Fill in all fields.', errEmailExists: 'This e-mail is already registered.',
-  errCredentials: 'Wrong e-mail or password.', errPasswordShort: 'Password must have at least 4 characters.',
+  noAccount: "Don't have an account? Sign up", hasAccount: 'Already have an account? Log in', confirmPassword: 'Confirm password',
+  errFill: 'Fill in all fields.', errEmailExists: 'This e-mail is already registered.', errEmailInvalid: 'Enter a valid e-mail address.',
+  errCredentials: 'Wrong e-mail or password.', errPasswordShort: 'Password must have at least 6 characters.', errPasswordMismatch: 'Passwords do not match.',
   whyTitle: "Why do you want to use JIM's?", whyHint: 'Pick as many as you like.',
   m_control: 'Track my spending', m_save: 'Save money', m_debts: 'Get out of debt',
   m_fixed: 'Organize fixed bills', m_plan: 'Plan purchases', m_learn: 'Learn about finance',
@@ -53,7 +53,7 @@ const en: Record<string, string> = {
   cat_market: 'Groceries', cat_iptu: 'Property tax', cat_ipva: 'Vehicle tax', cat_bills: 'Bills', cat_transport: 'Transport', cat_leisure: 'Leisure',
   settingsTitle: 'Settings', sTheme: 'Color / Theme', sLanguage: 'Language', sUser: 'User', sBudget: 'Budget', sHelp: 'Help',
   light: 'Light', dark: 'Dark', monthlyBudget: 'Monthly budget (R$)', saveBudget: 'Save budget', saved: 'Saved!',
-  logout: 'Log out', logged: 'Signed in as',
+  logout: 'Log out', logged: 'Signed in as', selectSource: 'Choose an option to continue.',
 };
 
 export const dictionaries: Record<Language, Record<string, string>> = { pt, en };

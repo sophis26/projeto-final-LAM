@@ -1,10 +1,26 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Expense, Settings, User } from '../types';
+import { useAuth } from './AuthContext';
+import { Expense, Settings, User, Usuario } from '../types';
 import { KEYS, load, save } from '../utils/storage';
 import { dictionaries } from '../utils/i18n';
 import { darkPalette, lightPalette, Palette } from '../theme/colors';
 
 const defaultSettings: Settings = { theme: 'light', language: 'pt' };
+
+const mapUsuarioToLegacyUser = (usuario: Usuario | null): User | null => {
+  if (!usuario) return null;
+
+  return {
+    id: usuario.id,
+    name: usuario.nome,
+    email: usuario.email,
+    password: '',
+    monthlyBudget: usuario.orcamentoMensal ?? 0,
+    onboarded: Boolean(usuario.motivoUso || usuario.origem || usuario.orcamentoMensal > 0),
+    motivations: usuario.motivoUso ? usuario.motivoUso.split(',').map((item) => item.trim()).filter(Boolean) : [],
+    source: usuario.origem || null,
+  };
+};
 
 interface AppContextData {
   ready: boolean;
@@ -13,10 +29,10 @@ interface AppContextData {
   settings: Settings;
   palette: Palette;
   t: (key: string) => string;
-  register: (name: string, email: string, password: string) => Promise<string | null>;
+  register: (name: string, email: string, password: string, confirmPassword?: string) => Promise<string | null>;
   login: (email: string, password: string) => Promise<string | null>;
   logout: () => Promise<void>;
-  finishOnboarding: (motivations: string[], source: string | null) => Promise<void>;
+  finishOnboarding: (motivations: string[], source: string | null, budget?: number | string) => Promise<void>;
   updateUser: (patch: Partial<User>) => Promise<void>;
   addExpense: (e: Omit<Expense, 'id'>) => Promise<void>;
   removeExpense: (id: string) => Promise<void>;
@@ -27,91 +43,79 @@ const AppContext = createContext<AppContextData>({} as AppContextData);
 export const useApp = () => useContext(AppContext);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const auth = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
 
   useEffect(() => {
-    (async () => {
-      const [u, s, sessionId] = await Promise.all([
-        load<User[]>(KEYS.users, []),
-        load<Settings>(KEYS.prefs, defaultSettings),
-        load<string | null>(KEYS.session, null),
-      ]);
-      setUsers(u);
-      setSettings({ ...defaultSettings, ...s });
-      const current = u.find((x) => x.id === sessionId) ?? null;
-      if (current) {
-        setUser(current);
-        setExpenses(await load<Expense[]>(KEYS.expenses(current.id), []));
-      }
-      setReady(true);
-    })();
+    const loadSettings = async () => {
+      const savedSettings = await load<Settings>(KEYS.prefs, defaultSettings);
+      setSettings({ ...defaultSettings, ...savedSettings });
+    };
+
+    loadSettings();
   }, []);
 
+  useEffect(() => {
+    const loadExpenses = async () => {
+      if (!auth.user) {
+        setExpenses([]);
+        return;
+      }
+
+      const userExpenses = await load<Expense[]>(KEYS.expenses(auth.user.id), []);
+      setExpenses(userExpenses);
+    };
+
+    if (auth.ready) {
+      loadExpenses();
+    }
+  }, [auth.ready, auth.user?.id]);
+
+  const user = useMemo(() => mapUsuarioToLegacyUser(auth.user), [auth.user]);
+  const ready = auth.ready;
   const t = useCallback((key: string) => dictionaries[settings.language][key] ?? key, [settings.language]);
   const palette = settings.theme === 'dark' ? darkPalette : lightPalette;
 
-  const persistUsers = async (list: User[]) => {
-    setUsers(list);
-    await save(KEYS.users, list);
-  };
-
-  const register = async (name: string, email: string, password: string) => {
-    const cleanEmail = email.trim().toLowerCase();
-    if (!name.trim() || !cleanEmail || !password) return 'errFill';
-    if (password.length < 4) return 'errPasswordShort';
-    if (users.some((u) => u.email === cleanEmail)) return 'errEmailExists';
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      email: cleanEmail,
-      password,
-      monthlyBudget: 3000,
-      onboarded: false,
-      motivations: [],
-      source: null,
-    };
-    await persistUsers([...users, newUser]);
-    await save(KEYS.session, newUser.id);
-    setExpenses([]);
-    setUser(newUser);
-    return null;
+  const register = async (name: string, email: string, password: string, confirmPassword?: string) => {
+    return auth.register(name, email, password, confirmPassword ?? password);
   };
 
   const login = async (email: string, password: string) => {
-    const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail || !password) return 'errFill';
-    const found = users.find((u) => u.email === cleanEmail && u.password === password);
-    if (!found) return 'errCredentials';
-    await save(KEYS.session, found.id);
-    setExpenses(await load<Expense[]>(KEYS.expenses(found.id), []));
-    setUser(found);
-    return null;
+    return auth.login(email, password);
   };
 
   const logout = async () => {
-    await save(KEYS.session, null);
-    setUser(null);
+    await auth.logout();
     setExpenses([]);
   };
 
   const updateUser = async (patch: Partial<User>) => {
-    if (!user) return;
-    const updated = { ...user, ...patch };
-    setUser(updated);
-    await persistUsers(users.map((u) => (u.id === updated.id ? updated : u)));
+    if (!auth.user) return;
+
+    const nextPatch: Partial<Usuario> = {};
+    if (patch.name !== undefined) nextPatch.nome = patch.name;
+    if (patch.email !== undefined) nextPatch.email = patch.email;
+    if (patch.monthlyBudget !== undefined) nextPatch.orcamentoMensal = patch.monthlyBudget;
+    if (patch.onboarded !== undefined) nextPatch.motivoUso = auth.user.motivoUso;
+    if (patch.source !== undefined) nextPatch.origem = patch.source ?? '';
+    if (patch.motivations !== undefined) nextPatch.motivoUso = patch.motivations.join(',');
+
+    await auth.updateUser(nextPatch);
   };
 
-  const finishOnboarding = async (motivations: string[], source: string | null) => {
-    await updateUser({ motivations, source, onboarded: true });
+  const finishOnboarding = async (motivations: string[], source: string | null, budget?: number | string) => {
+    await auth.finishOnboarding(motivations, source, budget ?? user?.monthlyBudget ?? 0);
   };
 
   const addExpense = async (e: Omit<Expense, 'id'>) => {
     if (!user) return;
-    const list = [{ ...e, id: Date.now().toString() }, ...expenses];
+    const description = e.description.trim();
+    const amount = Number(e.amount);
+    if (!description) return;
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) return;
+    const list = [{ ...e, description, amount, id: Date.now().toString() }, ...expenses];
     setExpenses(list);
     await save(KEYS.expenses(user.id), list);
   };
@@ -131,11 +135,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo(
     () => ({
-      ready, user, expenses, settings, palette, t,
-      register, login, logout, finishOnboarding, updateUser, addExpense, removeExpense, updateSettings,
+      ready,
+      user,
+      expenses,
+      settings,
+      palette,
+      t,
+      register,
+      login,
+      logout,
+      finishOnboarding,
+      updateUser,
+      addExpense,
+      removeExpense,
+      updateSettings,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ready, user, users, expenses, settings, palette, t],
+    [ready, user, expenses, settings, palette, t],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

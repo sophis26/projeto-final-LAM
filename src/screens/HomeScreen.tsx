@@ -65,7 +65,7 @@ export default function HomeScreen({ navigation }: any) {
       <View style={{ backgroundColor: palette.card, borderRadius: 20, padding: 18, marginTop: 12 }}>
         <Text style={{ color: palette.text, fontWeight: '700', marginBottom: 12 }}>{t('byCategory')}</Text>
         <View style={{ alignItems: 'center' }}>
-          <PieChart data={slices} emptyColor={palette.cardAlt} />
+          <PieChart data={slices} emptyColor={palette.cardAlt} strokeColor={palette.chartStroke} />
         </View>
         {spent > 0 ? (
           <View style={{ marginTop: 14, gap: 6 }}>

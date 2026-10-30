@@ -21,9 +21,23 @@ const OPTIONS: { id: string; icon: IconName }[] = [
 export default function MotivationScreen({ navigation }: any) {
   const { palette, t } = useApp();
   const [selected, setSelected] = useState<string[]>([]);
+  const [error, setError] = useState('');
 
-  const toggle = (id: string) =>
-    setSelected((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  const toggle = (id: string) => {
+    setSelected((cur) => {
+      const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+      if (next.length > 0) setError('');
+      return next;
+    });
+  };
+
+  const submit = () => {
+    if (selected.length === 0) {
+      setError(t('selectSource'));
+      return;
+    }
+    navigation.navigate('Source', { motivations: selected });
+  };
 
   return (
     <Screen>
@@ -34,7 +48,8 @@ export default function MotivationScreen({ navigation }: any) {
           <OptionCard key={o.id} icon={o.icon} label={t(`m_${o.id}`)} selected={selected.includes(o.id)} onPress={() => toggle(o.id)} />
         ))}
       </View>
-      <RoundArrowButton onPress={() => navigation.navigate('Source', { motivations: selected })} />
+      {!!error && <Text style={{ color: palette.danger, fontWeight: '600', marginTop: 8, marginBottom: 4 }}>{error}</Text>}
+      <RoundArrowButton onPress={submit} />
     </Screen>
   );
 }

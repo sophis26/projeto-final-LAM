@@ -1,41 +1,28 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# Contexto do projeto: JIM's - Gerenciador de gastos
 
-## Expo has changed — do not trust your training data
+App mobile de educação financeira e controle de orçamento doméstico, projeto final de Aplicações Móveis (CEFET-MG, Campus Varginha). React Native + Expo + TypeScript, testado no Expo Go no celular.
 
-Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
+## Telas (definidas no Crazy 8 do grupo)
+1. Login
+2. Cadastro
+3. "Por que quer usar o JIM's"
+4. "Por onde nos encontrou"
+5. Home: saldo, nível de orçamento e gráfico de pizza
+6. Calendário de gastos (dias em verde/vermelho)
+7. Gastos do mês (ex.: IPTU, IPVA, Mercado)
+8. Configurações (tema, idioma, usuário, ajuda)
 
-1. Read the major version of the `expo` package in `package.json`.
-2. Fetch the matching versioned docs: `https://docs.expo.dev/versions/v<major>.0.0/`
-3. For anything else, fetch https://docs.expo.dev/llms.txt — an index of all Expo docs with corrections to common LLM misconceptions. Follow its links to the specific page you need; never answer from memory.
+## Identidade visual (obrigatória em todo o app)
+- Azul principal #6FA6E2: botões, ícones e navegação
+- Verde-lima #A9D94F: destaques, gráficos positivos, economia
+- Azul claro #A1C9F5: cartões e fundos secundários
+- Verde pastel: áreas de destaque suaves (valor ainda a confirmar, manter em uma constante fácil de trocar)
+- Fundo #F2F9EA: plano de fundo geral
 
-## Commands
-
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
-
-```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
-```
-
-Run lint and typecheck before declaring any task done.
-
-## Navigation & Routing
-
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
-
-## Building with EAS
-
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
-Docs: https://docs.expo.dev/eas/index.md
-
-## Rules
-
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
-- Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+## Regras de trabalho
+- A equipe (estudantes) precisa entender e explicar todo o código. Prefira código simples e legível a soluções sofisticadas.
+- Comentários e textos da interface em português do Brasil.
+- Faça apenas o que o prompt pedir; não altere arquivos ou telas não relacionados.
+- Ao terminar, liste os arquivos criados/alterados e explique em poucas frases o que cada um faz.
+- Não instale bibliotecas sem avisar e justificar.
+- Tudo deve rodar no Expo Go.

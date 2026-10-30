@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, ViewStyle, StyleProp } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
+import { spacing } from '../theme/colors';
 
 interface Props {
   label: string;
@@ -19,8 +20,8 @@ export function Button({ label, onPress, variant = 'primary', icon, style }: Pro
       onPress={onPress}
       style={({ pressed }) => [
         {
-          backgroundColor: bg, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 18,
-          flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+          backgroundColor: bg, borderRadius: spacing.buttonRadius, paddingVertical: spacing.sm, paddingHorizontal: spacing.md,
+          flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
           opacity: pressed ? 0.8 : 1,
           borderWidth: variant === 'ghost' ? 1.5 : 0, borderColor: palette.primary,
         },

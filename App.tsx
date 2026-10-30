@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from './src/context/AppContext';
+import { AuthProvider } from './src/context/AuthContext';
 import Navigation from './src/navigation';
 
 function Root() {
@@ -17,9 +18,11 @@ function Root() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppProvider>
-        <Root />
-      </AppProvider>
+      <AuthProvider>
+        <AppProvider>
+          <Root />
+        </AppProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

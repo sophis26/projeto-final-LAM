@@ -24,8 +24,22 @@ export interface Palette {
   danger: string;
   warning: string;
   lightBlue: string;
+  chartStroke: string;
   isDark: boolean;
 }
+
+export const spacing = {
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 24,
+  xxl: 32,
+  cardRadius: 16,
+  buttonRadius: 14,
+  inputRadius: 12,
+  fullRadius: 999,
+};
 
 export const lightPalette: Palette = {
   bg: brand.background,
@@ -42,6 +56,7 @@ export const lightPalette: Palette = {
   danger: brand.danger,
   warning: brand.warning,
   lightBlue: brand.lightBlue,
+  chartStroke: '#FFFFFF',
   isDark: false,
 };
 
@@ -60,6 +75,7 @@ export const darkPalette: Palette = {
   danger: '#F0686D',
   warning: brand.warning,
   lightBlue: '#27425F',
+  chartStroke: '#EAF2FB',
   isDark: true,
 };
 

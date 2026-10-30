@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, StyleProp, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '../context/AppContext';
+import { spacing } from '../theme/colors';
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export function Screen({ children, centered = false, edges = ['top', 'left', 'ri
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[
-          { padding: 20, paddingBottom: 32, flexGrow: 1 },
+          { padding: spacing.lg, paddingBottom: spacing.xxl, flexGrow: 1 },
           centered && { justifyContent: 'center' },
           contentStyle,
         ]}

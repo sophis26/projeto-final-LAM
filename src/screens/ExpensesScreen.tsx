@@ -32,7 +32,7 @@ export default function ExpensesScreen({ navigation }: any) {
                 alignItems: 'center', marginBottom: 12, opacity: pressed ? 0.85 : 1,
               })}
             >
-              <Ionicons name={c.icon as keyof typeof Ionicons.glyphMap} size={28} color={palette.isDark ? palette.primary : '#2F5E96'} />
+              <Ionicons name={c.icon as keyof typeof Ionicons.glyphMap} size={28} color={palette.primary} />
               <Text style={{ color: palette.text, fontWeight: '700', marginTop: 6 }} numberOfLines={1}>{t(`cat_${c.id}`)}</Text>
               <Text style={{ color: palette.text, fontSize: 12, marginTop: 2 }}>{brl(sum)}</Text>
             </Pressable>

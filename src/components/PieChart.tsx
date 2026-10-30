@@ -8,7 +8,7 @@ export interface Slice {
 
 const point = (c: number, r: number, a: number): [number, number] => [c + r * Math.cos(a), c + r * Math.sin(a)];
 
-export function PieChart({ data, size = 170, emptyColor }: { data: Slice[]; size?: number; emptyColor: string }) {
+export function PieChart({ data, size = 170, emptyColor, strokeColor = '#FFFFFF' }: { data: Slice[]; size?: number; emptyColor: string; strokeColor?: string }) {
   const slices = data.filter((d) => d.value > 0);
   const total = slices.reduce((s, d) => s + d.value, 0);
   const c = size / 2;
@@ -39,7 +39,7 @@ export function PieChart({ data, size = 170, emptyColor }: { data: Slice[]; size
         const [x2, y2] = point(c, r, end);
         const d = `M ${c} ${c} L ${x1} ${y1} A ${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${x2} ${y2} Z`;
         start = end;
-        return <Path key={i} d={d} fill={s.color} stroke="#FFFFFF" strokeWidth={2} />;
+        return <Path key={i} d={d} fill={s.color} stroke={strokeColor} strokeWidth={2} />;
       })}
     </Svg>
   );

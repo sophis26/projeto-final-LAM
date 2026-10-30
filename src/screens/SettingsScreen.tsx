@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '../components/Screen';
@@ -24,6 +24,10 @@ export default function SettingsScreen() {
   const [active, setActive] = useState<Section>('theme');
   const [budget, setBudget] = useState(String(user?.monthlyBudget ?? 0).replace('.', ','));
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setBudget(String(user?.monthlyBudget ?? 0).replace('.', ','));
+  }, [user?.monthlyBudget]);
 
   const Chip = ({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) => (
     <Pressable
@@ -59,7 +63,7 @@ export default function SettingsScreen() {
               borderWidth: 2.5, borderColor: active === s.id ? palette.lime : 'transparent',
             }}
           >
-            <Ionicons name={s.icon} size={30} color={palette.isDark ? palette.primary : '#2F5E96'} />
+            <Ionicons name={s.icon} size={30} color={palette.primary} />
             <Text style={{ color: palette.text, fontWeight: '700' }}>{t(s.label)}</Text>
           </Pressable>
         ))}
