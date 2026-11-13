@@ -1,13 +1,37 @@
-// Identidade visual do JIM's (ver "Identidade visual.docx")
+// Tokens da identidade visual: altere VERDE_PASTEL aqui para ajustar os destaques suaves.
+export const VERDE_PASTEL = '#D3EDB0';
+
 export const brand = {
-  primary: '#6FA6E2', // azul principal RGB(111,166,226): botões, ícones, navegação
-  lime: '#A9D94F', // verde-lima RGB(169,217,79): destaques, economia
-  lightBlue: '#A1C9F5', // azul claro RGB(161,201,245): cartões e fundos secundários
-  pastelGreen: '#D3EDB0', // verde pastel: áreas de destaque suaves (cor a confirmar, ver README)
-  background: '#F2F9EA', // fundo quase branco RGB(242,249,234)
-  danger: '#E5484D', // vermelho (gasto acima do limite, conforme Crazy 8)
+  primary: '#6FA6E2',
+  lime: '#A9D94F',
+  lightBlue: '#A1C9F5',
+  pastelGreen: VERDE_PASTEL,
+  background: '#F2F9EA',
+  white: '#FFFFFF',
+  transparent: 'transparent',
+  danger: '#C62828',
+  dangerText: '#8B1E25',
+  success: '#3C9B55',
+  successText: '#1D562E',
   warning: '#F2B84B',
+  warningText: '#634300',
+  ink: '#1E2F46',
+  blueInk: '#315F93',
+  muted: '#3D526B',
+  border: '#BCD6F2',
 };
+
+export const categoryColors = [
+  brand.lime,
+  brand.primary,
+  '#4F86C6',
+  brand.lightBlue,
+  '#7FB52F',
+  '#8DD4BE',
+  '#C8D1D8',
+];
+
+export const chartColors = [brand.primary, brand.lime, brand.lightBlue, '#7FB52F', '#4F86C6', '#C9E48F'];
 
 export interface Palette {
   bg: string;
@@ -20,15 +44,22 @@ export interface Palette {
   input: string;
   onPrimary: string;
   primary: string;
+  icon: string;
   lime: string;
   danger: string;
+  dangerText: string;
+  success: string;
+  successText: string;
   warning: string;
+  warningText: string;
   lightBlue: string;
   chartStroke: string;
+  transparent: string;
   isDark: boolean;
 }
 
 export const spacing = {
+  xxs: 4,
   xs: 8,
   sm: 12,
   md: 16,
@@ -39,24 +70,37 @@ export const spacing = {
   buttonRadius: 14,
   inputRadius: 12,
   fullRadius: 999,
+  touchTarget: 44,
+  controlHeight: 48,
+  roundButtonSize: 64,
+  iconBadgeSize: 40,
+  progressHeight: 14,
+  legendDotSize: 14,
+  chartDotSize: 12,
 };
 
 export const lightPalette: Palette = {
   bg: brand.background,
   card: brand.lightBlue,
-  cardAlt: '#FFFFFF',
+  cardAlt: brand.white,
   soft: brand.pastelGreen,
-  text: '#1E2F46',
-  muted: '#4D617A',
-  border: '#BCD6F2',
-  input: '#FFFFFF',
-  onPrimary: '#1E2F46',
+  text: brand.ink,
+  muted: brand.muted,
+  border: brand.border,
+  input: brand.white,
+  onPrimary: brand.ink,
   primary: brand.primary,
+  icon: brand.blueInk,
   lime: brand.lime,
   danger: brand.danger,
+  dangerText: brand.dangerText,
+  success: brand.success,
+  successText: brand.successText,
   warning: brand.warning,
+  warningText: brand.warningText,
   lightBlue: brand.lightBlue,
-  chartStroke: '#FFFFFF',
+  chartStroke: brand.white,
+  transparent: brand.transparent,
   isDark: false,
 };
 
@@ -69,14 +113,18 @@ export const darkPalette: Palette = {
   muted: '#A9BED6',
   border: '#34506E',
   input: '#1B2D42',
-  onPrimary: '#10202F',
+  onPrimary: brand.ink,
   primary: brand.primary,
+  icon: brand.lightBlue,
   lime: brand.lime,
-  danger: '#F0686D',
-  warning: brand.warning,
+  danger: brand.danger,
+  dangerText: '#FF9A9F',
+  success: '#7BD88F',
+  successText: '#8EE3A0',
+  warning: '#F2B84B',
+  warningText: '#FFD166',
   lightBlue: '#27425F',
   chartStroke: '#EAF2FB',
+  transparent: brand.transparent,
   isDark: true,
 };
-
-export const chartColors = ['#6FA6E2', '#A9D94F', '#A1C9F5', '#7FB52F', '#4F86C6', '#C9E48F'];

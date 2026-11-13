@@ -12,8 +12,9 @@ interface AuthContextData {
   login: (email: string, password: string) => Promise<string | null>;
   register: (name: string, email: string, password: string, confirmPassword?: string) => Promise<string | null>;
   logout: () => Promise<void>;
-  finishOnboarding: (motivations: string[], source: string | null, budget?: number | string) => Promise<void>;
-  updateUser: (patch: Partial<Usuario>) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string, confirmation: string) => Promise<string | null>;
+  finishOnboarding: (motivations: string[], source: string | null, budget?: number | string) => Promise<boolean>;
+  updateUser: (patch: Partial<Usuario>) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -123,8 +124,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string, confirmation: string) => {
+    if (!currentPassword || !newPassword || !confirmation) return 'errFill';
+    if (newPassword.length < 6) return 'errPasswordShort';
+    if (newPassword !== confirmation) return 'errPasswordMismatch';
+    if (!user) return 'errSave';
+
+    try {
+      const currentHash = await hashPassword(currentPassword);
+      if (currentHash !== user.senhaHash) return 'errCurrentPassword';
+      const saved = await updateUsuario(user.id, { senhaHash: await hashPassword(newPassword) });
+      if (!saved) return 'errSave';
+      await persistSession(saved);
+      setUser(saved);
+      return null;
+    } catch (error) {
+      console.warn('Erro ao alterar senha:', error);
+      return 'errSave';
+    }
+  };
+
   const finishOnboarding = async (motivations: string[], source: string | null, budget?: number | string) => {
-    if (!user) return;
+    if (!user) return false;
 
     const nextBudget = typeof budget === 'string' ? Number(budget.replace(',', '.')) : Number(budget ?? user.orcamentoMensal);
     const updatedUser: Usuario = {
@@ -134,25 +155,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       orcamentoMensal: Number.isFinite(nextBudget) && nextBudget > 0 ? nextBudget : user.orcamentoMensal,
     };
 
-    const saved = await updateUsuario(user.id, updatedUser);
-    if (saved) {
+    try {
+      const saved = await updateUsuario(user.id, updatedUser);
+      if (!saved) return false;
+
       await persistSession(saved);
       setUser(saved);
+      return true;
+    } catch (error) {
+      console.warn('Erro ao concluir cadastro:', error);
+      return false;
     }
   };
 
   const updateUser = async (patch: Partial<Usuario>) => {
-    if (!user) return;
+    if (!user) return false;
 
-    const saved = await updateUsuario(user.id, patch);
-    if (saved) {
+    try {
+      const saved = await updateUsuario(user.id, patch);
+      if (!saved) return false;
       await persistSession(saved);
       setUser(saved);
+      return true;
+    } catch (error) {
+      console.warn('Erro ao atualizar usuário:', error);
+      return false;
     }
   };
 
   const value = useMemo(
-    () => ({ ready, user, login, register, logout, finishOnboarding, updateUser }),
+    () => ({ ready, user, login, register, logout, changePassword, finishOnboarding, updateUser }),
     [ready, user],
   );
 

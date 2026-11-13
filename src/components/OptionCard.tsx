@@ -17,14 +17,16 @@ export function OptionCard({ icon, label, selected = false, onPress, width = '48
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       style={({ pressed }) => ({
         width, minHeight: 104, borderRadius: spacing.cardRadius, padding: spacing.sm, marginBottom: spacing.sm, alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
         backgroundColor: selected ? palette.soft : palette.card,
-        borderWidth: 2.5, borderColor: selected ? palette.lime : 'transparent',
+        borderWidth: 2.5, borderColor: selected ? palette.lime : palette.transparent,
         opacity: pressed ? 0.85 : 1,
       })}
     >
-      <Ionicons name={icon} size={30} color={selected ? palette.text : palette.primary} />
+      <Ionicons name={icon} size={30} color={selected ? palette.text : palette.icon} />
       <Text style={{ color: palette.text, fontWeight: '700', textAlign: 'center' }}>{label}</Text>
     </Pressable>
   );

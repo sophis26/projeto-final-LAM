@@ -20,7 +20,9 @@ export interface Categoria {
   cor: string;
 }
 
-export interface Category extends Categoria {
+/** Metadados visuais usados para escolher o ícone de cada categoria. */
+export interface Category {
+  id: string;
   icon: string;
 }
 
@@ -39,7 +41,6 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string; // protótipo: sem criptografia (ver README)
   monthlyBudget: number;
   onboarded: boolean;
   motivations: string[];
@@ -52,6 +53,7 @@ export interface Expense {
   amount: number;
   categoryId: string;
   date: string; // AAAA-MM-DD
+  type: 'receita' | 'despesa';
 }
 
 export type ThemeMode = 'light' | 'dark';

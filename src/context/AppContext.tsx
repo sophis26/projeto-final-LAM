@@ -1,11 +1,9 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { Expense, Settings, User, Usuario } from '../types';
-import { KEYS, load, save } from '../utils/storage';
-import { dictionaries } from '../utils/i18n';
-import { darkPalette, lightPalette, Palette } from '../theme/colors';
-
-const defaultSettings: Settings = { theme: 'light', language: 'pt' };
+import type { Categoria, Expense, Settings, User, Usuario } from '../types';
+import { createLancamento, listCategorias, listLancamentos, removeLancamento, updateLancamento } from '../services/storage';
+import { useTheme } from './ThemeContext';
+import type { Palette } from '../theme/colors';
 
 const mapUsuarioToLegacyUser = (usuario: Usuario | null): User | null => {
   if (!usuario) return null;
@@ -14,7 +12,6 @@ const mapUsuarioToLegacyUser = (usuario: Usuario | null): User | null => {
     id: usuario.id,
     name: usuario.nome,
     email: usuario.email,
-    password: '',
     monthlyBudget: usuario.orcamentoMensal ?? 0,
     onboarded: Boolean(usuario.motivoUso || usuario.origem || usuario.orcamentoMensal > 0),
     motivations: usuario.motivoUso ? usuario.motivoUso.split(',').map((item) => item.trim()).filter(Boolean) : [],
@@ -26,17 +23,20 @@ interface AppContextData {
   ready: boolean;
   user: User | null;
   expenses: Expense[];
+  categories: Categoria[];
   settings: Settings;
   palette: Palette;
   t: (key: string) => string;
   register: (name: string, email: string, password: string, confirmPassword?: string) => Promise<string | null>;
   login: (email: string, password: string) => Promise<string | null>;
   logout: () => Promise<void>;
-  finishOnboarding: (motivations: string[], source: string | null, budget?: number | string) => Promise<void>;
-  updateUser: (patch: Partial<User>) => Promise<void>;
-  addExpense: (e: Omit<Expense, 'id'>) => Promise<void>;
+  finishOnboarding: (motivations: string[], source: string | null, budget?: number | string) => Promise<boolean>;
+  updateUser: (patch: Partial<User>) => Promise<boolean>;
+  addExpense: (e: Omit<Expense, 'id'>) => Promise<boolean>;
+  updateExpense: (id: string, patch: Omit<Expense, 'id'>) => Promise<boolean>;
   removeExpense: (id: string) => Promise<void>;
-  updateSettings: (patch: Partial<Settings>) => Promise<void>;
+  updateSettings: (patch: Partial<Settings>) => Promise<boolean>;
+  changePassword: (currentPassword: string, newPassword: string, confirmation: string) => Promise<string | null>;
 }
 
 const AppContext = createContext<AppContextData>({} as AppContextData);
@@ -45,26 +45,36 @@ export const useApp = () => useContext(AppContext);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      const savedSettings = await load<Settings>(KEYS.prefs, defaultSettings);
-      setSettings({ ...defaultSettings, ...savedSettings });
-    };
-
-    loadSettings();
-  }, []);
+  const [categories, setCategories] = useState<Categoria[]>([]);
+  const [dataReady, setDataReady] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     const loadExpenses = async () => {
-      if (!auth.user) {
-        setExpenses([]);
-        return;
-      }
+      setDataReady(false);
+      try {
+        if (!auth.user) {
+          setExpenses([]);
+          setCategories([]);
+          return;
+        }
 
-      const userExpenses = await load<Expense[]>(KEYS.expenses(auth.user.id), []);
-      setExpenses(userExpenses);
+        const [userLancamentos, userCategorias] = await Promise.all([
+          listLancamentos(auth.user.id),
+          listCategorias(),
+        ]);
+        setExpenses(userLancamentos.map((item) => ({
+          id: item.id,
+          description: item.descricao,
+          amount: item.valor,
+          categoryId: item.categoriaId,
+          date: item.data.slice(0, 10),
+          type: item.tipo,
+        })));
+        setCategories(userCategorias);
+      } finally {
+        setDataReady(true);
+      }
     };
 
     if (auth.ready) {
@@ -73,9 +83,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [auth.ready, auth.user?.id]);
 
   const user = useMemo(() => mapUsuarioToLegacyUser(auth.user), [auth.user]);
-  const ready = auth.ready;
-  const t = useCallback((key: string) => dictionaries[settings.language][key] ?? key, [settings.language]);
-  const palette = settings.theme === 'dark' ? darkPalette : lightPalette;
+  const ready = auth.ready && dataReady;
+  const { settings, palette, t } = theme;
 
   const register = async (name: string, email: string, password: string, confirmPassword?: string) => {
     return auth.register(name, email, password, confirmPassword ?? password);
@@ -88,10 +97,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await auth.logout();
     setExpenses([]);
+    setCategories([]);
   };
 
   const updateUser = async (patch: Partial<User>) => {
-    if (!auth.user) return;
+    if (!auth.user) return false;
 
     const nextPatch: Partial<Usuario> = {};
     if (patch.name !== undefined) nextPatch.nome = patch.name;
@@ -101,43 +111,61 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (patch.source !== undefined) nextPatch.origem = patch.source ?? '';
     if (patch.motivations !== undefined) nextPatch.motivoUso = patch.motivations.join(',');
 
-    await auth.updateUser(nextPatch);
+    return auth.updateUser(nextPatch);
   };
 
   const finishOnboarding = async (motivations: string[], source: string | null, budget?: number | string) => {
-    await auth.finishOnboarding(motivations, source, budget ?? user?.monthlyBudget ?? 0);
+    return auth.finishOnboarding(motivations, source, budget ?? user?.monthlyBudget ?? 0);
   };
 
   const addExpense = async (e: Omit<Expense, 'id'>) => {
-    if (!user) return;
+    if (!user) return false;
     const description = e.description.trim();
     const amount = Number(e.amount);
-    if (!description) return;
-    if (!Number.isFinite(amount) || amount <= 0) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) return;
-    const list = [{ ...e, description, amount, id: Date.now().toString() }, ...expenses];
-    setExpenses(list);
-    await save(KEYS.expenses(user.id), list);
+    if (!description || !Number.isFinite(amount) || amount <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(e.date)) return false;
+    const saved = await createLancamento({
+      usuarioId: user.id,
+      descricao: description,
+      valor: amount,
+      tipo: e.type,
+      categoriaId: e.categoryId,
+      data: new Date(`${e.date}T12:00:00`).toISOString(),
+    });
+    if (!saved) return false;
+    setExpenses((current) => [{ ...e, description, amount, id: saved.id }, ...current]);
+    return true;
+  };
+
+  const updateExpense = async (id: string, patch: Omit<Expense, 'id'>) => {
+    if (!user) return false;
+    const updated = await updateLancamento(id, {
+      usuarioId: user.id,
+      descricao: patch.description.trim(),
+      valor: Number(patch.amount),
+      tipo: patch.type,
+      categoriaId: patch.categoryId,
+      data: new Date(`${patch.date}T12:00:00`).toISOString(),
+    });
+    if (!updated) return false;
+    setExpenses((current) => current.map((item) => item.id === id ? { ...patch, description: patch.description.trim(), id } : item));
+    return true;
   };
 
   const removeExpense = async (id: string) => {
     if (!user) return;
-    const list = expenses.filter((x) => x.id !== id);
-    setExpenses(list);
-    await save(KEYS.expenses(user.id), list);
+    const removed = await removeLancamento(id);
+    if (removed) setExpenses((current) => current.filter((x) => x.id !== id));
   };
 
-  const updateSettings = async (patch: Partial<Settings>) => {
-    const next = { ...settings, ...patch };
-    setSettings(next);
-    await save(KEYS.prefs, next);
-  };
+  const updateSettings = theme.updateSettings;
+  const changePassword = auth.changePassword;
 
   const value = useMemo(
     () => ({
       ready,
       user,
       expenses,
+      categories,
       settings,
       palette,
       t,
@@ -147,10 +175,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       finishOnboarding,
       updateUser,
       addExpense,
+      updateExpense,
       removeExpense,
       updateSettings,
+      changePassword,
     }),
-    [ready, user, expenses, settings, palette, t],
+    [ready, user, expenses, categories, settings, palette, t, changePassword, updateSettings],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

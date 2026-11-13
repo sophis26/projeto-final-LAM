@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { Categoria, Lancamento, Usuario } from '../types';
+import { categoryColors } from '../theme/colors';
 
 export const STORAGE_KEYS = {
   usuarios: '@jims:usuarios',
@@ -19,21 +20,17 @@ const readJson = async <T>(key: string, fallback: T): Promise<T> => {
 };
 
 const writeJson = async <T>(key: string, value: T): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.warn(`Erro ao salvar ${key}:`, error);
-  }
+  await AsyncStorage.setItem(key, JSON.stringify(value));
 };
 
 export const categoriasPadrao: Omit<Categoria, 'id'>[] = [
-  { nome: 'Mercado', cor: '#A9D94F' },
-  { nome: 'Moradia', cor: '#6FA6E2' },
-  { nome: 'Transporte', cor: '#9AC7F5' },
-  { nome: 'Impostos', cor: '#A1C9F5' },
-  { nome: 'Lazer', cor: '#D8F0A3' },
-  { nome: 'Saúde', cor: '#8DD4BE' },
-  { nome: 'Outros', cor: '#C8D1D8' },
+  { nome: 'Mercado', cor: categoryColors[0] },
+  { nome: 'Moradia', cor: categoryColors[1] },
+  { nome: 'Transporte', cor: categoryColors[2] },
+  { nome: 'Impostos', cor: categoryColors[3] },
+  { nome: 'Lazer', cor: categoryColors[4] },
+  { nome: 'Saúde', cor: categoryColors[5] },
+  { nome: 'Outros', cor: categoryColors[6] },
 ];
 
 const createId = (prefix: string): string => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;

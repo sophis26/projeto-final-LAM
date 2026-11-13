@@ -1,5 +1,6 @@
 import React from 'react';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { lightPalette } from '../theme/colors';
 
 export interface Slice {
   value: number;
@@ -8,7 +9,7 @@ export interface Slice {
 
 const point = (c: number, r: number, a: number): [number, number] => [c + r * Math.cos(a), c + r * Math.sin(a)];
 
-export function PieChart({ data, size = 170, emptyColor, strokeColor = '#FFFFFF' }: { data: Slice[]; size?: number; emptyColor: string; strokeColor?: string }) {
+export function PieChart({ data, size = 170, emptyColor, strokeColor = lightPalette.chartStroke }: { data: Slice[]; size?: number; emptyColor: string; strokeColor?: string }) {
   const slices = data.filter((d) => d.value > 0);
   const total = slices.reduce((s, d) => s + d.value, 0);
   const c = size / 2;

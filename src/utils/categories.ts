@@ -1,13 +1,14 @@
-import { Category } from '../types';
+import type { Category } from '../types';
 
-// Categorias do quadro "Gastos do mês" (IPTU, IPVA, Mercado...)
+// Ícones associados às categorias padrão criadas pelo serviço de armazenamento.
 export const CATEGORIES: Category[] = [
-  { id: 'market', icon: 'cart-outline' },
-  { id: 'iptu', icon: 'home-outline' },
-  { id: 'ipva', icon: 'car-outline' },
-  { id: 'bills', icon: 'flash-outline' },
-  { id: 'transport', icon: 'bus-outline' },
-  { id: 'leisure', icon: 'game-controller-outline' },
+  { id: 'categoria-1', icon: 'cart-outline' },
+  { id: 'categoria-2', icon: 'home-outline' },
+  { id: 'categoria-3', icon: 'bus-outline' },
+  { id: 'categoria-4', icon: 'receipt-outline' },
+  { id: 'categoria-5', icon: 'game-controller-outline' },
+  { id: 'categoria-6', icon: 'heart-outline' },
+  { id: 'categoria-7', icon: 'ellipsis-horizontal-circle-outline' },
 ];
 
 export const categoryIcon = (id: string) => CATEGORIES.find((c) => c.id === id)?.icon ?? 'ellipse-outline';

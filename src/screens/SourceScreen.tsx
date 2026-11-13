@@ -6,6 +6,7 @@ import { OptionCard } from '../components/OptionCard';
 import { RoundArrowButton } from '../components/Button';
 import { Input } from '../components/Input';
 import { useApp } from '../context/AppContext';
+import { spacing } from '../theme/colors';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -24,6 +25,7 @@ export default function SourceScreen({ route }: any) {
   const [source, setSource] = useState<string | null>(null);
   const [budget, setBudget] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const submit = async () => {
     if (!source) {
@@ -38,12 +40,18 @@ export default function SourceScreen({ route }: any) {
     }
 
     setError('');
-    await finishOnboarding(route?.params?.motivations ?? [], source, value);
+    setLoading(true);
+    try {
+      const saved = await finishOnboarding(route?.params?.motivations ?? [], source, value);
+      if (!saved) setError(t('errSave'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Screen>
-      <Text style={{ fontSize: 24, fontWeight: '800', color: palette.text, marginTop: 8, marginBottom: 20 }}>{t('sourceTitle')}</Text>
+      <Text style={{ fontSize: 24, fontWeight: '800', color: palette.text, marginTop: spacing.xs, marginBottom: spacing.lg }}>{t('sourceTitle')}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
         {OPTIONS.map((o) => (
           <OptionCard key={o.id} icon={o.icon} label={t(`src_${o.id}`)} selected={source === o.id} onPress={() => {
@@ -52,11 +60,11 @@ export default function SourceScreen({ route }: any) {
           }} />
         ))}
       </View>
-      <View style={{ marginTop: 18 }}>
+      <View style={{ marginTop: spacing.md }}>
         <Input label={t('monthlyBudget')} value={budget} keyboardType="decimal-pad" onChangeText={setBudget} placeholder="3000" />
       </View>
-      {!!error && <Text style={{ color: palette.danger, fontWeight: '600', marginTop: 4, marginBottom: 8 }}>{error}</Text>}
-      <RoundArrowButton onPress={submit} />
+      {!!error && <Text style={{ color: palette.dangerText, fontWeight: '600', marginTop: spacing.xxs, marginBottom: spacing.xs }}>{error}</Text>}
+      <RoundArrowButton onPress={submit} loading={loading} />
     </Screen>
   );
 }

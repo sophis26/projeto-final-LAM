@@ -5,6 +5,7 @@ import { Screen } from '../components/Screen';
 import { OptionCard } from '../components/OptionCard';
 import { RoundArrowButton } from '../components/Button';
 import { useApp } from '../context/AppContext';
+import { spacing } from '../theme/colors';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -41,14 +42,14 @@ export default function MotivationScreen({ navigation }: any) {
 
   return (
     <Screen>
-      <Text style={{ fontSize: 24, fontWeight: '800', color: palette.text, marginTop: 8 }}>{t('whyTitle')}</Text>
-      <Text style={{ color: palette.muted, marginTop: 4, marginBottom: 20 }}>{t('whyHint')}</Text>
+      <Text style={{ fontSize: 24, fontWeight: '800', color: palette.text, marginTop: spacing.xs }}>{t('whyTitle')}</Text>
+      <Text style={{ color: palette.muted, marginTop: spacing.xxs, marginBottom: spacing.lg }}>{t('whyHint')}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
         {OPTIONS.map((o) => (
           <OptionCard key={o.id} icon={o.icon} label={t(`m_${o.id}`)} selected={selected.includes(o.id)} onPress={() => toggle(o.id)} />
         ))}
       </View>
-      {!!error && <Text style={{ color: palette.danger, fontWeight: '600', marginTop: 8, marginBottom: 4 }}>{error}</Text>}
+      {!!error && <Text style={{ color: palette.dangerText, fontWeight: '600', marginTop: spacing.xs, marginBottom: spacing.xxs }}>{error}</Text>}
       <RoundArrowButton onPress={submit} />
     </Screen>
   );

@@ -31,7 +31,7 @@ function Tabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: palette.isDark ? palette.primary : '#3F7FC8',
+        tabBarActiveTintColor: palette.icon,
         tabBarInactiveTintColor: palette.muted,
         tabBarStyle: { backgroundColor: palette.cardAlt, borderTopColor: palette.border },
         tabBarLabelStyle: { fontWeight: '600' },
@@ -52,7 +52,7 @@ export default function Navigation() {
   if (!ready) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.bg }}>
-        <ActivityIndicator size="large" color={palette.primary} />
+        <ActivityIndicator size="large" color={palette.icon} />
       </View>
     );
   }
